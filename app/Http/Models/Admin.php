@@ -78,4 +78,10 @@ class Admin extends Model
     {
         return $this->where('id', intval($id))->update($data);
     }
+
+    public function deleteUser(int $id)
+    {
+        $user = Admin::find($id);
+        return $user->delete();
+    }
 }

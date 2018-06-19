@@ -6,6 +6,7 @@ use function app;
 use App\Http\Models\Admin;
 use function explode;
 use function file_put_contents;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use function implode;
 use Redis;
 use Request;
@@ -14,6 +15,8 @@ use function serialize;
 
 class AdminController extends BaseController
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
     public function createUser(Admin $admin)
     {
         $data = request()->except('token');
@@ -85,6 +88,23 @@ class AdminController extends BaseController
             return $this->error();
         }
 
+        return $this->success();
+    }
+
+    public function deleteUser(Admin $admin)
+    {
+        $user_id = request()->input('id', 0);
+        if($user_id == 0) {
+            return $this->error('参数错误');
+        }
+        $user = $admin->getUser($user_id);
+        if(empty($user)) {
+            return $this->error('该用户不存在');
+        }
+
+        if(!$admin->deleteUser($user_id)) {
+            return $this->error();
+        }
         return $this->success();
     }
 
